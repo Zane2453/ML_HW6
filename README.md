@@ -23,3 +23,8 @@ python3 main.py
 ```
 
 ## Reference
+- https://ithelp.ithome.com.tw/articles/10195984
+- https://github.com/yao0510/Machine-Learning-2019-Fall-NCTU/tree/master/HW6
+- https://www2.cs.duke.edu/courses/cps296.2/spring07/papers/kMeansPlusPlus.pdf
+- https://blog.gtwang.org/programming/opencv-basic-image-read-and-write-tutorial/
+- https://hant-kb.kutu66.com/python/post_4847474
