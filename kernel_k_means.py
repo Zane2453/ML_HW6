@@ -26,10 +26,15 @@ def make_kernel(image, gamma_s, gamma_c):
     return kernel
 
 def initialization(image, k, method):
-    #C = np.array([np.random.randint(100, size=2) for _ in range(k)], dtype = np.float32)
     if method == 'random':
         classification = np.random.randint(k, size=10000)
         return classification
+    elif method == 'equal-divide':
+        classification = []
+        num_in_clusters = 10000 / k
+        for data in range(10000):
+            classification.append(data // num_in_clusters)
+        return np.array(classification, dtype = np.int)
 
 def plot_result(result, images):
     result = result.reshape((100, 100))
@@ -54,10 +59,10 @@ def classify(kernel, classification, k):
     return new_classification
 
 def kernel_k_means(image, k, name, gamma_s, gamma_c):
-    methods = ['random']
-    images = []
+    methods = ['random', 'equal-divide']
     fig = plt.figure()
     for method in methods:
+        images = []
         classification = initialization(image, k, method)
         kernel = make_kernel(image, gamma_s, gamma_c)
 
