@@ -29,3 +29,8 @@ python3 main.py
 - https://blog.gtwang.org/programming/opencv-basic-image-read-and-write-tutorial/
 - https://hant-kb.kutu66.com/python/post_4847474
 - https://stackoverflow.com/questions/51512141/how-to-make-matplotlib-saved-gif-looping/51515256
+- https://blog.csdn.net/qq_35277038/article/details/80766746
+- https://blog.csdn.net/huangfei711/article/details/78480078
+- https://matplotlib.org/3.1.1/gallery/mplot3d/scatter3d.html
+- https://stackoverflow.com/questions/12236566/setting-different-color-for-each-series-in-scatter-plot-on-matplotlib
+- https://stackoverflow.com/questions/56222259/valueerror-unknown-projection-3d-once-again

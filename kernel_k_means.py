@@ -70,7 +70,7 @@ def kernel_k_means(image, k, name, gamma_s, gamma_c):
 
         images = plot_result(classification, images)
         animate = animation.ArtistAnimation(fig, images, interval=500, repeat_delay=1000)
-        animate.save(os.path.join(f'./{method}_{name}_{k}.gif'), writer=PillowWriter(fps=20))
+        animate.save(os.path.join(f'./{method}_{name}_{k}_kernel_k_means.gif'), writer=PillowWriter(fps=20))
 
 if __name__ == "__main__":
     image1 = read_image('./image1.png')
@@ -79,7 +79,7 @@ if __name__ == "__main__":
     gamma_s = 1/(100*100)
     gamma_c = 1/(255*255)
 
-    clusters = [2, 3, 4, 5]
+    clusters = [2, 3, 4]
     for cluster in clusters:
         kernel_k_means(image1, cluster, 'image1', gamma_s, gamma_c)
         kernel_k_means(image2, cluster, 'image2', gamma_s, gamma_c)
