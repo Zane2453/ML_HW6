@@ -2,6 +2,8 @@ import numpy as np
 from scipy.spatial.distance import pdist, squareform
 import cv2
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from matplotlib.animation import PillowWriter
 import os
 
 # read the input images
@@ -29,70 +31,55 @@ def initialization(image, k, method):
         classification = np.random.randint(k, size=10000)
         return classification
 
-def plot_result(result, file_name, clusters, iteration):
+def plot_result(result, images):
     result = result.reshape((100, 100))
-    plt.imshow(result)
-    plt.savefig(os.path.join(f'./{clusters}/{file_name}_{iteration}.png'))
-
+    image = plt.imshow(result)
+    images.append([image])
+    return images
 
 def classify(kernel, classification, k):
-    # this segment of code is to compute the third part of formula
     cluster_sum = np.zeros(k, dtype=np.int)
-    third_term = np.zeros(k, dtype=np.float32)
+    all_term = np.zeros((10000, k), dtype=np.float32)
 
     for i in range(10000):
         cluster_sum[classification[i]] += 1
 
     for cluster in range(k):
-        for p in range(10000):
-            for q in range(10000):
-                if classification[p] == cluster and classification[q] == cluster:
-                    third_term[cluster] += kernel[p][q]
-        if cluster_sum[cluster] == 0:
-            continue
-        third_term[cluster] /= (cluster_sum[cluster] ** 2)
-
-    # this segment of code is to compute the all part of formula
-    second_term = np.zeros((10000, k), dtype=np.float32)
-    all_term = np.zeros((10000, k), dtype=np.float32)
-    for j in range(10000):
-        for cluster in range(k):
-            for n in range(10000):
-                if classification[n] == cluster:
-                    second_term[j, cluster] += kernel[j][n]
-            if cluster_sum[cluster] != 0:
-                second_term[j][cluster] = (second_term[j][cluster] * 2) / cluster_sum[cluster]
-            all_term[j][cluster] = kernel[j][j] - second_term[j][cluster] + third_term[cluster]
+        all_term[:, cluster] += (1 / cluster_sum[cluster]) ** 2 * np.sum(
+            kernel[classification == cluster][:, classification == cluster])
+        all_term[:, cluster] -= (2 / cluster_sum[cluster]) * np.sum(kernel[:, classification == cluster], axis=1)
 
     new_classification = np.argmin(all_term, axis=1)
+
     return new_classification
 
-
-def kernel_k_means(image, k, name):
+def kernel_k_means(image, k, name, gamma_s, gamma_c):
     methods = ['random']
+    images = []
+    fig = plt.figure()
     for method in methods:
         classification = initialization(image, k, method)
         kernel = make_kernel(image, gamma_s, gamma_c)
-        iteration = 0
 
         while True:
-            print(f"iteration: {iteration}")
             prev_classification = classification
-            plot_result(classification, name, k, iteration)
-            iteration += 1
+            images = plot_result(classification, images)
             classification = classify(kernel, prev_classification, k)
-            if np.array_equal(prev_classification, classification) or iteration >= 20:
+            if np.array_equal(prev_classification, classification):
                 break
 
-        plot_result(classification, name, k, iteration)
+        images = plot_result(classification, images)
+        animate = animation.ArtistAnimation(fig, images, interval=500, repeat_delay=1000)
+        animate.save(os.path.join(f'./{method}_{name}_{k}.gif'), writer=PillowWriter(fps=20))
 
 if __name__ == "__main__":
     image1 = read_image('./image1.png')
     image2 = read_image('./image2.png')
 
-    gamma_s = 0.01
-    gamma_c = 0.01
+    gamma_s = 1/(100*100)
+    gamma_c = 1/(255*255)
 
-    clusters = [2, 3, 4]
+    clusters = [2, 3, 4, 5]
     for cluster in clusters:
-        kernel_k_means(image1, cluster, 'image1')
+        kernel_k_means(image1, cluster, 'image1', gamma_s, gamma_c)
+        kernel_k_means(image2, cluster, 'image2', gamma_s, gamma_c)
