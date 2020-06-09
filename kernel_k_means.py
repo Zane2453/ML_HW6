@@ -25,7 +25,7 @@ def make_kernel(image, gamma_s, gamma_c):
 
     return kernel
 
-def initialization(image, k, method):
+def initialization(k, method):
     if method == 'random':
         classification = np.random.randint(k, size=10000)
         return classification
@@ -63,7 +63,7 @@ def kernel_k_means(image, k, name, gamma_s, gamma_c):
     fig = plt.figure()
     for method in methods:
         images = []
-        classification = initialization(image, k, method)
+        classification = initialization(k, method)
         kernel = make_kernel(image, gamma_s, gamma_c)
 
         while True:

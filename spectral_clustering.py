@@ -29,10 +29,33 @@ def make_kernel(image, gamma_s, gamma_c):
 
     return kernel
 
-def initialization(image, k, method):
+def nearest(data_point, cluster_centers):
+    min_dist = 1e100
+    cluster_num = np.shape(cluster_centers)[0]
+    for i in range(cluster_num):
+        dist = np.linalg.norm(data_point - cluster_centers[i, :])
+        # choose the shortest distance
+        if min_dist > dist:
+            min_dist = dist
+    return min_dist
+
+def initialization(Laplacian, k, method):
     C = np.array([np.random.randint(100, size=k) for _ in range(k)], dtype = np.float32)
     if method == 'random':
         classification = np.random.randint(k, size=10000)
+        return C, classification
+    elif method == 'k-means++':
+        classification = np.random.randint(k, size=10000)
+        data_num, dimension = np.shape(Laplacian)
+        first_cluster = np.random.randint(data_num, size=1, dtype=np.int)
+        C[0, :] = Laplacian[first_cluster, :]
+        for i in range(1, k):
+            distance = np.zeros(data_num, dtype=np.float32)
+            for j in range(data_num):
+                distance[j] = nearest(Laplacian[j, :], C[0:i, :])
+            distance = distance / distance.sum()
+            cluster = np.random.choice(data_num, size=1, p=distance)
+            C[i, :] = Laplacian[cluster, :]
         return C, classification
 
 def plot_result(result, images):
@@ -81,18 +104,17 @@ def plot_eigenspace(Laplacian, classification, k, method, way, name):
         for cluster in range(k):
             for data in range(10000):
                 if classification[data] == cluster:
-                    #plt.scatter(Laplacian[data][0], Laplacian[data][1], Laplacian[data][2], c=colors[cluster])
                     ax.scatter(Laplacian[data][0], Laplacian[data][1], Laplacian[data][2], c=colors[cluster], marker='o')
     else:
         return
     plt.savefig(os.path.join(f'./{method}_{name}_{k}_{way}_eigenspace.png'))
 
 def k_means(Laplacian, image, k, name, way):
-    methods = ['random']
+    methods = ['random', 'k-means++']
     images = []
     fig = plt.figure()
     for method in methods:
-        C, classification = initialization(image, k, method)
+        C, classification = initialization(Laplacian, k, method)
         iteration = 0
 
         while True:
